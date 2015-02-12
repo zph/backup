@@ -39,6 +39,11 @@ module Backup
       end
     end
 
+    attr_accessor :run_interval_in_seconds
+
+    def run_interval_in_seconds(sec)
+      @run_interval_in_seconds = sec
+    end
     ##
     # The trigger (stored as a String) is used as an identifier
     # for initializing the backup process
@@ -282,6 +287,10 @@ module Backup
       unless @interrupted
         set_exit_status
         @finished_at = Time.now.utc
+        if @run_interval_in_seconds
+          upcoming_run = (@finished_at.to_i + @run_interval_in_seconds)
+          @next_run = DateTime.strptime(upcoming_run.to_s,'%s')
+        end
         log!(:finished)
         after_hook
       end
@@ -448,6 +457,22 @@ module Backup
       minutes   = remainder / 60
       seconds   = remainder - (minutes * 60)
       '%02d:%02d:%02d' % [hours, minutes, seconds]
+    end
+
+    def next_run(finish_time)
+    end
+
+    def plain_model(model = self)
+      storage_model = model.dup
+
+      procs = storage_model.instance_variables.select do |m|
+        storage_model.instance_variable_get(m).kind_of? Proc
+      end
+
+      # unset procs, doesn't work for procs nested below one level
+      procs.each { |p| storage_model.instance_variable_set(p, nil) }
+
+      storage_model
     end
 
   end
