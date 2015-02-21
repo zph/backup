@@ -178,6 +178,14 @@ module Backup
           end
         end
 
+        # TODO: insert dump here
+        models_file = "runs.yaml"
+        FileUtils.touch models_file
+        yaml = YAML.load_file(models_file) || {}
+        yaml[:models] ||= []
+        yaml[:models].unshift model.plain_model
+        File.write(models_file, yaml.to_yaml)
+
         model.notifiers.each(&:perform!)
         exit(3) if fatal
         Logger.clear!

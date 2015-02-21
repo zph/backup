@@ -66,6 +66,10 @@ module Backup
       autoload :Push,  File.join(SYNCER_PATH, 'rsync', 'push')
       autoload :Pull,  File.join(SYNCER_PATH, 'rsync', 'pull')
     end
+    module Duplicity
+      autoload :Base,  File.join(SYNCER_PATH, 'duplicity', 'base')
+      autoload :S3,    File.join(SYNCER_PATH, 'duplicity', 's3')
+    end
   end
 
   ##

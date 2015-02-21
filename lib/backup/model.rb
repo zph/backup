@@ -303,6 +303,22 @@ module Backup
       elapsed_time(started_at, finished_at)
     end
 
+    def next_run(finish_time)
+    end
+
+    def plain_model(model = self)
+      storage_model = model.dup
+
+      procs = storage_model.instance_variables.select do |m|
+        storage_model.instance_variable_get(m).kind_of? Proc
+      end
+
+      # unset procs, doesn't work for procs nested below one level
+      [ :@archives, :@storages, *procs ].each { |p| storage_model.instance_variable_set(p, nil) }
+
+      storage_model
+    end
+
     private
 
     ##
@@ -457,22 +473,6 @@ module Backup
       minutes   = remainder / 60
       seconds   = remainder - (minutes * 60)
       '%02d:%02d:%02d' % [hours, minutes, seconds]
-    end
-
-    def next_run(finish_time)
-    end
-
-    def plain_model(model = self)
-      storage_model = model.dup
-
-      procs = storage_model.instance_variables.select do |m|
-        storage_model.instance_variable_get(m).kind_of? Proc
-      end
-
-      # unset procs, doesn't work for procs nested below one level
-      procs.each { |p| storage_model.instance_variable_set(p, nil) }
-
-      storage_model
     end
 
   end
